@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <div class="close">
+    <div class="close" @click="$router.go(-1)">
       <i class="iconfont iconicon-test"></i>
     </div>
     <div class="logo">
@@ -15,28 +15,31 @@
       ></hm-input>
     </div>
     <div class="password">
-      <hm-input placeholder="请输入密码" v-model="password" :rules="/^1\d{4,10}$/" err-msg="输入的用户名格式错误"></hm-input>
+      <hm-input placeholder="请输入密码" v-model="password" :rules="/^1\d{2,10}$/" err-msg="输入的用户名格式错误"></hm-input>
     </div>
     <div class="login">
       <hm-button @click="login">登录</hm-button>
+    </div>
+    <div class="go-register">
+      没有账号?立即
+      <router-link to="/register">注册</router-link>
     </div>
   </div>
 </template>
 
 <script>
-import HmInput from '../components/HmInput'
-import HmButton from '../components/HmButton'
-import axios from 'axios'
 export default {
-  components: {
-    HmInput,
-    HmButton
-  },
   data () {
     return {
       username: '',
       password: ''
     }
+  },
+  created () {
+    // console.log(this.$route)
+    const { username, password } = this.$route.params
+    this.username = username
+    this.password = password
   },
   methods: {
     async login () {
@@ -44,14 +47,19 @@ export default {
       if (!this.username || !this.password) return
 
       // 发送ajax请求
-      const res = await axios.post('http://localhost:3000/login', {
+      const res = await this.$axios.post('/login', {
         username: this.username,
         password: this.password
       })
       if (res.data.statusCode === 401) {
-        alert('用户名或者密码错误')
+        this.$toast.fail('用户名或者密码错误')
       } else {
-        alert('登录成功')
+        // console.log(res)
+        const { token, user } = res.data.data
+        localStorage.setItem('token', token)
+        localStorage.setItem('user_id', user.id)
+        this.$toast.success('登录成功')
+        this.$router.push('/personage')
       }
     }
   }
@@ -72,6 +80,10 @@ export default {
       color: #d81e06;
       font-size: 126px;
     }
+  }
+  .go-register {
+    text-align: center;
+    font-size: 15px;
   }
 }
 </style>

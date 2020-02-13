@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     handleInput (e) {
-      console.log(e.target.value)
+      // console.log(e.target.value)
       this.$emit('input', e.target.value)
       if (!this.rules) return
       if (this.rules.test(e.target.value)) {
